@@ -4,8 +4,16 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import TypedDict
 
-PROJECTS = {
+
+class ProjectContent(TypedDict):
+    topic: str
+    details: list[str]
+    actions: list[str | None]
+
+
+PROJECTS: dict[str, ProjectContent] = {
     "cedar": {
         "topic": "Cedar product launch",
         "details": [

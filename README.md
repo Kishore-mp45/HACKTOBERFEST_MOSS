@@ -5,9 +5,8 @@ documents, finds related files, extracts evidence-backed tasks and deadlines,
 and proposes organization changes. **You remain in control:** Moss never moves
 or renames a file without explicit approval and execution.
 
-> This repository is being prepared locally. Badges, screenshots, and public
-> release links are intentionally omitted until repository hosting and a demo
-> recording are authorized.
+> Fully local, offline-capable, and privacy-preserving. All 12 implementation
+> phases are complete and verified with local unit, integration, and E2E browser tests.
 
 ## Features
 
@@ -135,7 +134,7 @@ npm run build
 
 ## Project status
 
-Core local scanning, analysis, recommendations, and guarded file operations
-are implemented. Packaging and demo materials are being completed locally.
-GitHub publishing, release tagging, and public article submission are not
-included; the repository owner will manage those steps.
+All 12 phases of implementation are complete and verified. Local scanning,
+AI classification, embeddings, similarity clustering, action-item extraction,
+recommendations, and reversible file operations are fully implemented and
+tested locally. GitHub publishing and release tagging remain owner-managed.

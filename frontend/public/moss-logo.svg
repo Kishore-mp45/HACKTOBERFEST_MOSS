@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" fill="none" role="img" aria-label="Moss — The Digital Backlog Gardener">
+  <rect x="10" y="42" width="116" height="116" rx="28" fill="#203D32"/>
+  <path d="M68 136c0-30 0-46 0-52" stroke="#A7B99A" stroke-width="7" stroke-linecap="round"/>
+  <path d="M68 104c-23 0-35-11.5-37-33 24.5-1.3 36.5 10.3 37 33Z" fill="#6D8B63"/>
+  <path d="M68 90c20.5 0 31.5-10.3 33.5-29.5C80.5 59.3 69.5 69.5 68 90Z" fill="#A7B99A"/>
+  <path d="M46 136h44" stroke="#6D8B63" stroke-width="7" stroke-linecap="round"/>
+  <text x="156" y="118" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="86" font-weight="650" letter-spacing="-2" fill="#203D32">Moss</text>
+</svg>
