@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     similarity_threshold: float = Field(default=0.75, ge=0, le=1)
     duplicate_threshold: float = Field(default=0.92, ge=0, le=1)
     max_text_chars_for_llm: int = Field(default=12000, gt=0)
+    allow_remote_host: bool = False
     host: str = "127.0.0.1"
     port: int = Field(default=8765, ge=1, le=65535)
     log_level: str = "info"
@@ -54,7 +55,21 @@ class Settings(BaseSettings):
 
     @field_validator("host")
     @classmethod
-    def require_loopback_host(cls, value: str) -> str:
+    def require_loopback_host(cls, value: str, info: ValidationInfo) -> str:
+        allow_remote = (
+            info.data.get("allow_remote_host", False)
+            or os.environ.get("RENDER", "") == "true"
+            or os.environ.get("MOSS_ALLOW_REMOTE_HOST", "").lower() in ("true", "1", "yes")
+        )
+        if allow_remote:
+            if value in ("localhost", "0.0.0.0"):
+                return value
+            try:
+                addr = ip_address(value)
+                if addr.is_loopback or addr.is_unspecified:
+                    return value
+            except ValueError:
+                pass
         if value == "localhost":
             return value
         try:

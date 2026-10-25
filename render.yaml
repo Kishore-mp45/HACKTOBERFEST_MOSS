@@ -16,8 +16,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
-      - key: MOSS_HOST
-        value: "0.0.0.0"
+      - key: MOSS_ALLOW_REMOTE_HOST
+        value: "true"
       - key: MOSS_DATABASE_PATH
         value: /tmp/moss.db
       - key: MOSS_LOG_LEVEL
