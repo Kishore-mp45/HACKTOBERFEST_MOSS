@@ -6,6 +6,7 @@ import {
   Cpu,
   Database,
   ExternalLink,
+  FlaskConical,
   Loader2,
   MapPin,
   RefreshCw,
@@ -71,6 +72,7 @@ export function SettingsPage() {
   const checkRuntime = useWorkspace((s) => s.checkRuntime);
   const saveSettings = useWorkspace((s) => s.saveSettings);
   const apiMode = useWorkspace((s) => s.apiMode);
+  const setDemoMode = useWorkspace((s) => s.setDemoMode);
   const { theme, setTheme } = useTheme();
 
   const [path, setPath] = React.useState("");
@@ -230,7 +232,7 @@ export function SettingsPage() {
           footer={
             <>
               <span className="text-xs text-muted-foreground">
-                {kinds.length} of {(API_MODE === "live" ? LIVE_KINDS : DEMO_KINDS).length} types included
+                {kinds.length} of {(apiMode === "live" ? LIVE_KINDS : DEMO_KINDS).length} types included
               </span>
               <Button size="sm" className="rounded-lg" disabled={!analysisDirty || savingAnalysis} onClick={() => void saveAnalysis()}>
                 {savingAnalysis ? <Loader2 className="mr-1.5 size-3.5 animate-spin" aria-hidden /> : <Save className="mr-1.5 size-3.5" aria-hidden />}
@@ -239,7 +241,7 @@ export function SettingsPage() {
             </>
           }
         >
-          {API_MODE === "live" ? (
+          {apiMode === "live" ? (
             <p className="mb-4 rounded-lg bg-moss-warn-bg/60 px-3.5 py-2.5 text-xs leading-relaxed text-moss-warn-fg">
               The connected backend currently uses its supported parsers directly and does not apply per-workspace file filters or exclusion patterns.
             </p>
@@ -248,7 +250,7 @@ export function SettingsPage() {
             <fieldset>
               <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Included types</legend>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {(API_MODE === "live" ? LIVE_KINDS : DEMO_KINDS).map((kind) => (
+                {(apiMode === "live" ? LIVE_KINDS : DEMO_KINDS).map((kind) => (
                   <Label
                     key={kind}
                     htmlFor={`settings-kind-${kind}`}
@@ -260,7 +262,7 @@ export function SettingsPage() {
                     <Checkbox
                       id={`settings-kind-${kind}`}
                       checked={kinds.includes(kind)}
-                      disabled={API_MODE === "live"}
+                      disabled={apiMode === "live"}
                       onCheckedChange={(next) => {
                         setKinds((current) => (next ? [...current, kind] : current.filter((k) => k !== kind)));
                         setKindError(null);
@@ -285,7 +287,7 @@ export function SettingsPage() {
                 value={exclusions}
                 onChange={(event) => setExclusions(event.target.value)}
                 className="font-mono text-sm"
-                disabled={API_MODE === "live"}
+                disabled={apiMode === "live"}
               />
             </div>
           </div>
@@ -414,6 +416,38 @@ export function SettingsPage() {
                 </Label>
               ))}
             </RadioGroup>
+          </Card>
+
+          <Card
+            title="Demo & Presentation Mode"
+            description="Toggle between instant synthetic presentation data and the live local Ollama model backend."
+            icon={FlaskConical}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="demo-mode-switch" className="text-sm font-medium">
+                  {apiMode === "mock" ? "Demo Mode is Enabled" : "Live Backend Mode is Enabled"}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {apiMode === "mock"
+                    ? "Displaying 18 synthetic mock documents across 8 categories with instant interactions and a 5-second simulated analysis pipeline."
+                    : "Connecting to the local FastAPI backend (127.0.0.1:8765) with real Ollama inference."}
+                </p>
+              </div>
+              <Switch
+                id="demo-mode-switch"
+                checked={apiMode === "mock"}
+                onCheckedChange={(checked) => {
+                  void setDemoMode(checked);
+                  toast({
+                    title: checked ? "Demo mode enabled" : "Live backend enabled",
+                    description: checked
+                      ? "Loaded 18 synthetic demo documents and fast simulated analysis."
+                      : "Switched to live FastAPI backend.",
+                  });
+                }}
+              />
+            </div>
           </Card>
 
           <div className="rounded-xl border border-moss-line bg-moss-ivory/60 p-5">

@@ -10,7 +10,7 @@
  */
 
 import { create } from "zustand";
-import { mossApi, API_MODE } from "@/lib/api/client";
+import { mossApi, API_MODE, isDemoModeActive, setDemoModePreference } from "@/lib/api/client";
 import { toast } from "@/hooks/use-toast";
 import type {
   ActionItem,
@@ -108,6 +108,7 @@ interface WorkspaceState {
 
   saveSettings: (settings: WorkspaceSettings) => Promise<void>;
   checkRuntime: () => Promise<void>;
+  setDemoMode: (enabled: boolean) => Promise<void>;
 }
 
 function withBusy(ids: string[], id: string, busy: boolean): string[] {
@@ -115,7 +116,7 @@ function withBusy(ids: string[], id: string, busy: boolean): string[] {
 }
 
 export const useWorkspace = create<WorkspaceState>((set, get) => ({
-  apiMode: API_MODE,
+  apiMode: isDemoModeActive() ? "mock" : API_MODE,
   bootStatus: "idle",
   bootError: null,
   onboarded: false,
@@ -144,7 +145,8 @@ export const useWorkspace = create<WorkspaceState>((set, get) => ({
 
   async bootstrap() {
     if (get().bootStatus === "loading") return;
-    set({ bootStatus: "loading", bootError: null, onboarded: readOnboarded() });
+    const currentMode = isDemoModeActive() ? "mock" : "live";
+    set({ apiMode: currentMode, bootStatus: "loading", bootError: null, onboarded: readOnboarded() });
     try {
       await mossApi.ping();
       const [overview, files, collections, actionItems, duplicates, recommendations, activity, settings] =
@@ -429,5 +431,11 @@ export const useWorkspace = create<WorkspaceState>((set, get) => ({
     } finally {
       set({ runtimeChecking: false });
     }
+  },
+
+  async setDemoMode(enabled) {
+    setDemoModePreference(enabled);
+    set({ apiMode: enabled ? "mock" : "live" });
+    await get().bootstrap();
   },
 }));

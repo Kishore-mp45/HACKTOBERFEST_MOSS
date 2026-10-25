@@ -4,27 +4,71 @@
  * Centralized API access for the Moss frontend.
  *
  * Provider selection:
- * - `NEXT_PUBLIC_MOSS_API_URL` set → live FastAPI backend (`HttpMossApi`).
- * - otherwise                      → local FastAPI backend on port 8765.
- * - explicit development demo opt-in → `MockMossApi`.
+ * - When Demo Mode is active (via localStorage "moss.demo_mode", "?demo=1" URL param,
+ *   or NEXT_PUBLIC_MOSS_DEMO_MODE=true) → `MockMossApi` with instant synthetic fixtures
+ *   and 5-second simulated multi-stage scan.
+ * - Otherwise → `HttpMossApi` connecting to the local FastAPI backend (port 8765).
  *
- * Synthetic data is never selected in production.
+ * Switching between Demo Mode and Live Mode is supported dynamically without
+ * rebuild or server restart.
  */
 
 import type { MossApi } from "@/types/domain";
 import { HttpMossApi } from "./http";
 import { MockMossApi } from "./mock";
 
+const DEMO_STORAGE_KEY = "moss.demo_mode";
+
+export function isDemoModeActive(): boolean {
+  if (typeof window !== "undefined") {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("demo") === "1" || urlParams.get("demo") === "true") {
+        return true;
+      }
+      if (urlParams.get("demo") === "0" || urlParams.get("demo") === "false") {
+        return false;
+      }
+      const stored = window.localStorage.getItem(DEMO_STORAGE_KEY);
+      if (stored === "true" || stored === "1") return true;
+      if (stored === "false" || stored === "0") return false;
+    } catch {
+      // storage unavailable
+    }
+  }
+  return process.env.NEXT_PUBLIC_MOSS_DEMO_MODE === "true";
+}
+
+export function setDemoModePreference(enabled: boolean): void {
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(DEMO_STORAGE_KEY, enabled ? "true" : "false");
+    } catch {
+      // storage unavailable
+    }
+  }
+}
+
 const configuredBackendUrl = process.env.NEXT_PUBLIC_MOSS_API_URL?.trim();
-const demoModeRequested = process.env.NEXT_PUBLIC_MOSS_DEMO_MODE === "true";
-const useDemoProvider =
-  process.env.NODE_ENV !== "production" && !configuredBackendUrl && demoModeRequested;
 const backendUrl = configuredBackendUrl || "http://127.0.0.1:8765";
 
-export const API_MODE: "live" | "mock" = useDemoProvider ? "mock" : "live";
+// Singletons for both providers
+const mockProvider = new MockMossApi();
+const httpProvider = new HttpMossApi(backendUrl);
 
-export const mossApi: MossApi = useDemoProvider
-  ? new MockMossApi()
-  : new HttpMossApi(backendUrl);
+export function getActiveMossProvider(): MossApi {
+  return isDemoModeActive() ? mockProvider : httpProvider;
+}
+
+// Dynamic proxy so any call to mossApi resolves against the currently selected mode
+export const mossApi: MossApi = new Proxy({} as MossApi, {
+  get(_target, prop: string | symbol) {
+    const provider = getActiveMossProvider();
+    const value = Reflect.get(provider, prop as keyof MossApi);
+    return typeof value === "function" ? value.bind(provider) : value;
+  },
+});
+
+export const API_MODE: "live" | "mock" = isDemoModeActive() ? "mock" : "live";
 
 export { MossApiError } from "./http";

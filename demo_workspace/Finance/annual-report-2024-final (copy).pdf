@@ -1,0 +1,111 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 2
+/Kids [ 4 0 R 5 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 564
+>>
+stream
+BT
+/F1 11 Tf
+15 TL
+54 720 Td
+(Annual Financial & Operational Report - Fiscal Year 2024) Tj
+T*
+T*
+(Executive Summary & Consolidated Financial Statements) '
+(Compiled annual report: revenue by segment, cost structure, and auditor notes.) '
+(Audited in accordance with International Financial Reporting Standards.) '
+() '
+(Revenue Analysis:) '
+(- Enterprise Software: 4.82M EUR \(+18% YoY\)) '
+(- Consulting & Maintenance Services: 2.14M EUR) '
+(- Cloud Infrastructure & Hosting: 1.05M EUR) '
+() '
+(Q3 expense totals reconcile with the accompanying spreadsheet.) '
+ET
+endstream
+>>
+endobj
+5 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 462
+>>
+stream
+BT
+/F1 11 Tf
+15 TL
+54 720 Td
+(Annual Financial & Operational Report - Fiscal Year 2024) Tj
+T*
+T*
+(Notes to the Financial Statements) '
+(Cost structure highlights capital expenditure reduction in on-premise compute.) '
+(Auditor notes confirm all liabilities were settled within standard payment windows.) '
+(Q3 totals carried into FY summary \(see annual report, cost structure\).) '
+() '
+(Independent Auditor Confirmation: Clean unqualified opinion issued.) '
+ET
+endstream
+>>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000119 00000 n 
+0000000168 00000 n 
+0000000943 00000 n 
+trailer
+<<
+/Size 6
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+1616
+%%EOF

@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   FolderTree,
+  FlaskConical,
   Gauge,
   Inbox,
   ListChecks,
@@ -19,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { DemoDataBadge } from "@/components/moss/badges";
 import { MossLogo, MossMark } from "@/components/moss/logo";
 import { useWorkspace } from "@/store/workspace";
 import { Link, useRouter } from "@/lib/router";
@@ -82,6 +82,40 @@ function AiStatusChip() {
         <TooltipContent side="bottom" className="max-w-64 text-xs leading-relaxed">
           {runtime?.detail ??
             "No local inference runtime is configured. Run the connection test in Settings."}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function DemoModeBadge({ className }: { className?: string }) {
+  const apiMode = useWorkspace((s) => s.apiMode);
+  const setDemoMode = useWorkspace((s) => s.setDemoMode);
+
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={() => void setDemoMode(apiMode !== "mock")}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer",
+              apiMode === "mock"
+                ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
+                : "border-moss-line bg-muted/50 text-muted-foreground hover:bg-muted",
+              className,
+            )}
+            title="Click to toggle Demo / Live mode"
+          >
+            <FlaskConical className="size-3" aria-hidden />
+            <span>{apiMode === "mock" ? "Demo data" : "Live mode"}</span>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-64 text-xs">
+          {apiMode === "mock"
+            ? "Demo data active (18 synthetic files, 5s simulated scan). Click to switch to live backend."
+            : "Live backend active. Click to switch to instant demo presentation mode."}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -173,7 +207,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <div className="space-y-2 border-t border-moss-line px-4 py-3.5">
           <AiStatusChip />
-          {apiMode === "mock" ? <DemoDataBadge /> : null}
+          <DemoModeBadge />
         </div>
       </aside>
 
@@ -204,7 +238,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
                 <div className="absolute inset-x-0 bottom-0 space-y-2 border-t border-moss-line px-4 py-3.5">
                   <AiStatusChip />
-                  {apiMode === "mock" ? <DemoDataBadge /> : null}
+                  <DemoModeBadge />
                 </div>
               </SheetContent>
             </Sheet>
@@ -223,7 +257,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
-              {apiMode === "mock" ? <DemoDataBadge className="hidden sm:inline-flex" /> : null}
+              <DemoModeBadge className="hidden sm:inline-flex" />
               <AiStatusChip />
               <ThemeToggle />
             </div>

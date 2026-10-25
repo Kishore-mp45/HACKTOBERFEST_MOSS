@@ -24,7 +24,7 @@ import { Link, useRouter } from "@/lib/router";
 import { usePageTitle } from "@/hooks/moss";
 import type { FileKind, LocalRuntime } from "@/types/domain";
 import { cn } from "@/lib/utils";
-import { API_MODE, mossApi } from "@/lib/api/client";
+import { mossApi } from "@/lib/api/client";
 
 /**
  * First-run setup: workspace authorization, file formats, local AI check, and
@@ -101,6 +101,7 @@ function Shell({
 export function Onboarding() {
   usePageTitle("Welcome");
   const router = useRouter();
+  const apiMode = useWorkspace((s) => s.apiMode);
   const saveSettings = useWorkspace((s) => s.saveSettings);
   const setOnboarded = useWorkspace((s) => s.setOnboarded);
   const startScan = useWorkspace((s) => s.startScan);
@@ -108,8 +109,8 @@ export function Onboarding() {
   const [step, setStep] = React.useState(0);
 
   // Step 1 — workspace
-  const [path, setPath] = React.useState("~/Documents/garden");
-  const [name, setName] = React.useState("Garden");
+  const [path, setPath] = React.useState("C:\\MOSS_HACKTOBERFEST\\demo_workspace");
+  const [name, setName] = React.useState("Demo Workspace");
   const [pathError, setPathError] = React.useState<string | null>(null);
   const [authorizing, setAuthorizing] = React.useState(false);
   const [authorized, setAuthorized] = React.useState(false);
@@ -122,10 +123,10 @@ export function Onboarding() {
 
   // Step 2 — formats
   const [kinds, setKinds] = React.useState<FileKind[]>(
-    API_MODE === "live" ? LIVE_KINDS : ["pdf", "docx", "md", "txt", "xlsx"],
+    apiMode === "live" ? LIVE_KINDS : ["pdf", "docx", "md", "txt", "xlsx"],
   );
   const [exclusions, setExclusions] = React.useState(
-    API_MODE === "live" ? "" : "node_modules, .git, ~$*, *.tmp",
+    apiMode === "live" ? "" : "node_modules, .git, ~$*, *.tmp",
   );
   const [kindError, setKindError] = React.useState<string | null>(null);
 
@@ -237,7 +238,7 @@ export function Onboarding() {
                 router.navigate("/app");
               }}
             >
-              {API_MODE === "mock" ? "Skip — explore the demo workspace" : "Skip setup"}
+              {apiMode === "mock" ? "Skip — explore the demo workspace" : "Skip setup"}
             </Button>
             <Button className="rounded-lg" onClick={() => setStep(1)}>
               Start setup
@@ -333,9 +334,8 @@ export function Onboarding() {
             ) : (
               <p className="text-xs text-muted-foreground">Use an absolute path. The backend will verify real access.</p>
             )}
-            {API_MODE === "live" ? (
-              <div className="space-y-3 pt-1">
-                <Button
+            <div className="space-y-3 pt-1">
+              <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -387,8 +387,7 @@ export function Onboarding() {
                   </div>
                 ) : null}
               </div>
-            ) : null}
-          </div>
+            </div>
           <div className="space-y-2">
             <Label htmlFor="workspace-name">Workspace name</Label>
             <Input
@@ -404,7 +403,7 @@ export function Onboarding() {
               <CheckCircle2 className="size-4 shrink-0" aria-hidden />
               <span>
                 <span className="font-medium">{path.trim()}</span> is ready — the backend confirmed access.
-                {API_MODE === "mock" ? (
+                {apiMode === "mock" ? (
                   <span className="ml-1 text-moss-ok-fg/80">(Simulated in demo mode.)</span>
                 ) : null}
               </span>
@@ -421,7 +420,7 @@ export function Onboarding() {
         step={2}
         title="Which file types should Moss understand?"
         description={
-          API_MODE === "live"
+          apiMode === "live"
             ? "The connected backend currently analyzes PDF, Word, Markdown, and plain-text files. Per-workspace type filters and exclusions are not yet applied."
             : "Demo mode includes sample documents across PDF, Word, Markdown, plain text, Excel, CSV, and image formats."
         }
@@ -463,7 +462,7 @@ export function Onboarding() {
         <fieldset className="rounded-xl border border-moss-line bg-card p-6">
           <legend className="sr-only">Included file types</legend>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {(API_MODE === "live" ? LIVE_KINDS : DEMO_KINDS).map((kind) => {
+            {(apiMode === "live" ? LIVE_KINDS : DEMO_KINDS).map((kind) => {
               const checked = kinds.includes(kind);
               return (
                 <Label
@@ -477,7 +476,7 @@ export function Onboarding() {
                   <Checkbox
                     id={`kind-${kind}`}
                     checked={checked}
-                    disabled={API_MODE === "live"}
+                    disabled={apiMode === "live"}
                     onCheckedChange={(next) =>
                       setKinds((current) =>
                         next ? [...current, kind] : current.filter((k) => k !== kind),
@@ -505,10 +504,10 @@ export function Onboarding() {
             onChange={(event) => setExclusions(event.target.value)}
             placeholder="node_modules, .git, ~$*, *.tmp"
             className="font-mono text-sm"
-            disabled={API_MODE === "live"}
+            disabled={apiMode === "live"}
           />
           <p className="text-xs text-muted-foreground">
-            {API_MODE === "live"
+            {apiMode === "live"
               ? "Exclusion patterns are not applied by the current backend."
               : "These folders and files are skipped during discovery in the demo."}
           </p>
@@ -523,7 +522,7 @@ export function Onboarding() {
         step={3}
         title="Check your local AI"
         description={
-          API_MODE === "mock"
+          apiMode === "mock"
             ? "Moss uses sample data in demo mode. Test the local runtime any time, or continue exploring."
             : "Moss uses open-weight models through the configured local runtime. Test availability now, or finish setup and retry later."
         }
@@ -581,7 +580,7 @@ export function Onboarding() {
               <p className="text-sm leading-relaxed text-muted-foreground">{runtime.detail}</p>
               {runtime.status !== "available" ? (
                 <p className="rounded-lg bg-moss-mint/50 px-3.5 py-2.5 text-xs leading-relaxed text-moss-forest">
-                  {API_MODE === "live"
+                  {apiMode === "live"
                     ? "You can finish setup, but a live analysis needs the configured Ollama models to be available. Test the connection again any time from Settings."
                     : "You can continue in demo mode with clearly-labelled sample data, and test the connection again any time from Settings."}
                 </p>
@@ -635,7 +634,7 @@ export function Onboarding() {
           ["Workspace", `${name.trim() || "Workspace"} — ${path.trim()}`],
           ["File types", kinds.map((kind) => fileKindMeta[kind].label).join(", ") || "—"],
           ["Exclusions", exclusions.trim() || "None"],
-          ["Local AI", runtime ? (runtime.status === "available" ? `${runtime.provider} · ${runtime.modelId}` : `${runtime.provider} — not detected`) : API_MODE === "live" ? "Not checked" : "Demo mode (not tested)"],
+          ["Local AI", runtime ? (runtime.status === "available" ? `${runtime.provider} · ${runtime.modelId}` : `${runtime.provider} — not detected`) : apiMode === "live" ? "Not checked" : "Demo mode (not tested)"],
         ].map(([term, detail]) => (
           <div key={term} className="flex flex-col gap-1 py-3.5 sm:flex-row sm:items-baseline sm:justify-between">
             <dt className="text-sm font-medium text-foreground">{term}</dt>

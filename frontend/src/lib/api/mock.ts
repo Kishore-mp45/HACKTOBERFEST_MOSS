@@ -61,8 +61,22 @@ export class MockMossApi implements MossApi {
   private timers: ReturnType<typeof setTimeout>[] = [];
 
   async browseDirectories(path?: string): Promise<DirectoryListing> {
-    await delay(100);
-    throw new Error("Directory browsing is unavailable in demo mode.");
+    await delay(80);
+    const root = "C:\\MOSS_HACKTOBERFEST\\demo_workspace";
+    const current = path?.trim() || root;
+    return {
+      path: current,
+      entries: [
+        { name: "Apartment", path: `${current}\\Apartment` },
+        { name: "Downloads", path: `${current}\\Downloads` },
+        { name: "Finance", path: `${current}\\Finance` },
+        { name: "Misc", path: `${current}\\Misc` },
+        { name: "Research", path: `${current}\\Research` },
+        { name: "Thesis", path: `${current}\\Thesis` },
+        { name: "Travel", path: `${current}\\Travel` },
+        { name: "Work", path: `${current}\\Work` },
+      ],
+    };
   }
 
   async configureWorkspace(path: string, name?: string): Promise<void> {

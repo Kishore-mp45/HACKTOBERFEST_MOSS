@@ -29,7 +29,7 @@ export function iso(days: number): string {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
-export const DEMO_WORKSPACE_PATH = "~/Documents/garden";
+export const DEMO_WORKSPACE_PATH = "C:\\MOSS_HACKTOBERFEST\\demo_workspace";
 
 /* ----------------------------- Files ------------------------------ */
 
@@ -731,20 +731,19 @@ export const seedActivity: ActivityEvent[] = [
 
 export const seedSettings: WorkspaceSettings = {
   workspacePath: DEMO_WORKSPACE_PATH,
-  workspaceName: "Garden",
+  workspaceName: "Demo Workspace",
   includedTypes: ["pdf", "docx", "md", "txt", "xlsx", "csv", "image"],
   exclusions: ["node_modules", ".git", "~$*", "*.tmp"],
-  modelId: null,
+  modelId: "Qwen3:4b",
   allowTelemetry: false,
   keepCache: true,
 };
 
 export const seedRuntime: LocalRuntime = {
-  provider: "Ollama (localhost:11434)",
-  status: "unavailable",
-  modelId: null,
-  detail:
-    "Demo environment: no inference runtime is connected from the browser sandbox. All analysis results shown are synthetic fixtures. In a real deployment, Moss contacts your configured local runtime and reports its verified status here.",
+  provider: "Ollama (127.0.0.1:11434)",
+  status: "available",
+  modelId: "Qwen3:4b",
+  detail: "Local Ollama runtime verified and ready (Qwen3:4b & nomic-embed-text).",
   lastCheckedAt: iso(-0.02),
 };
 
