@@ -1,5 +1,6 @@
 """FastAPI application factory and lifespan management."""
 
+import os
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -64,17 +65,26 @@ def create_app(
     application.state.settings = app_settings
     application.state.session_factory = session_factory
     application.state.engine = engine
+    cors_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+    custom_origins = os.environ.get("MOSS_CORS_ORIGINS", "")
+    if custom_origins:
+        for origin in custom_origins.split(","):
+            cleaned = origin.strip()
+            if cleaned and cleaned not in cors_origins:
+                cors_origins.append(cleaned)
+
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "http://localhost:5173",
-            "http://127.0.0.1:5173",
-        ],
+        allow_origins=cors_origins,
+        allow_origin_regex=r"https://.*\.onrender\.com",
         allow_credentials=False,
         allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type"],
+        allow_headers=["*"],
     )
     application.include_router(health_router)
     application.include_router(dashboard_router)

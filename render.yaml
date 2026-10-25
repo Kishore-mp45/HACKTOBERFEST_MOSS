@@ -1,0 +1,49 @@
+# Render Blueprint configuration for Moss
+# Deploy with one click via Render Dashboard > New > Blueprint
+version: "1"
+
+services:
+  # 1. FastAPI Backend Service
+  - type: web
+    name: moss-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn moss.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: MOSS_HOST
+        value: "0.0.0.0"
+      - key: MOSS_DATABASE_PATH
+        value: /tmp/moss.db
+      - key: MOSS_LOG_LEVEL
+        value: info
+      - key: MOSS_CORS_ORIGINS
+        fromService:
+          type: web
+          name: moss-frontend
+          property: url
+
+  # 2. Next.js Frontend Service
+  - type: web
+    name: moss-frontend
+    runtime: node
+    rootDir: frontend
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start -- -p $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NEXT_PUBLIC_MOSS_DEMO_MODE
+        value: "true"
+      - key: NEXT_PUBLIC_MOSS_API_URL
+        fromService:
+          type: web
+          name: moss-backend
+          property: url

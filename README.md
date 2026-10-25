@@ -93,6 +93,14 @@ The [browser workflow GIF](docs/demo-workflow.gif) and
 [screenshots](docs/screenshots/) illustrate the UI with isolated synthetic
 Playwright API fixtures. They do not represent a live model scan.
 
+## Deployment
+
+Moss is ready to deploy on **Render** with 1-click using the included Render Blueprint (`render.yaml`):
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com)
+
+See the step-by-step [Render Deployment Guide](docs/RENDER_DEPLOYMENT.md) for full instructions, environment variable options, and Docker configurations.
+
 ## Architecture
 
 ![Moss local architecture: Next.js, FastAPI, SQLite, Ollama, and the selected workspace](docs/architecture.png)
