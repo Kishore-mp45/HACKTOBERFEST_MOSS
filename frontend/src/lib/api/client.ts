@@ -49,8 +49,17 @@ export function setDemoModePreference(enabled: boolean): void {
   }
 }
 
-const configuredBackendUrl = process.env.NEXT_PUBLIC_MOSS_API_URL?.trim();
-const backendUrl = configuredBackendUrl || "http://127.0.0.1:8765";
+function resolveBackendUrl(raw?: string): string {
+  if (!raw) return "http://127.0.0.1:8765";
+  const trimmed = raw.trim();
+  if (!trimmed) return "http://127.0.0.1:8765";
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/\/+$/, "");
+  }
+  return `https://${trimmed}`.replace(/\/+$/, "");
+}
+
+const backendUrl = resolveBackendUrl(process.env.NEXT_PUBLIC_MOSS_API_URL);
 
 // Singletons for both providers
 const mockProvider = new MockMossApi();

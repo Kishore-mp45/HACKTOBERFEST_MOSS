@@ -75,8 +75,12 @@ def create_app(
     if custom_origins:
         for origin in custom_origins.split(","):
             cleaned = origin.strip()
-            if cleaned and cleaned not in cors_origins:
-                cors_origins.append(cleaned)
+            if cleaned:
+                if not cleaned.startswith("http://") and not cleaned.startswith("https://"):
+                    cors_origins.append(f"https://{cleaned}")
+                    cors_origins.append(f"http://{cleaned}")
+                elif cleaned not in cors_origins:
+                    cors_origins.append(cleaned)
 
     application.add_middleware(
         CORSMiddleware,

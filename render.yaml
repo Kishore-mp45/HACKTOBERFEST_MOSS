@@ -26,7 +26,7 @@ services:
         fromService:
           type: web
           name: moss-frontend
-          property: url
+          property: host
 
   # 2. Next.js Frontend Service
   - type: web
@@ -46,4 +46,4 @@ services:
         fromService:
           type: web
           name: moss-backend
-          property: url
+          property: host
