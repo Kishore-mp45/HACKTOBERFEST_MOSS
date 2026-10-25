@@ -40,3 +40,21 @@ def test_rejects_non_loopback_bind_addresses(host: str) -> None:
 def test_rejects_nonlocal_ollama_endpoints(url: str) -> None:
     with pytest.raises(ValidationError, match="this machine"):
         Settings(ollama_base_url=url)
+
+
+def test_allows_remote_host_when_flag_or_env_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Allowed via explicit argument
+    s1 = Settings(host="0.0.0.0", allow_remote_host=True)
+    assert s1.host == "0.0.0.0"
+
+    # Allowed via RENDER env
+    monkeypatch.setenv("RENDER", "true")
+    s2 = Settings(host="0.0.0.0")
+    assert s2.host == "0.0.0.0"
+
+    # Allowed via MOSS_ALLOW_REMOTE_HOST env
+    monkeypatch.delenv("RENDER", raising=False)
+    monkeypatch.setenv("MOSS_ALLOW_REMOTE_HOST", "true")
+    s3 = Settings(host="0.0.0.0")
+    assert s3.host == "0.0.0.0"
+

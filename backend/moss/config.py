@@ -58,16 +58,17 @@ class Settings(BaseSettings):
     def require_loopback_host(cls, value: str, info: ValidationInfo) -> str:
         allow_remote = (
             info.data.get("allow_remote_host", False)
-            or os.environ.get("RENDER", "") == "true"
+            or os.environ.get("RENDER", "").lower() in ("true", "1", "yes")
+            or bool(os.environ.get("RENDER_SERVICE_ID"))
+            or bool(os.environ.get("RENDER_INSTANCE_ID"))
             or os.environ.get("MOSS_ALLOW_REMOTE_HOST", "").lower() in ("true", "1", "yes")
         )
         if allow_remote:
-            if value in ("localhost", "0.0.0.0"):
+            if value == "localhost":
                 return value
             try:
-                addr = ip_address(value)
-                if addr.is_loopback or addr.is_unspecified:
-                    return value
+                ip_address(value)
+                return value
             except ValueError:
                 pass
         if value == "localhost":
