@@ -40,3 +40,20 @@ class FilenameSuggestion(BaseModel):
 
     filename: str = Field(min_length=1, max_length=255)
     reason: str = Field(min_length=1, max_length=500)
+
+
+class ClusterReviewItem(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    cluster_id: int = Field(ge=0)
+    group_name: str = Field(min_length=1, max_length=80)
+    merge_with: int | None = Field(default=None, ge=0)
+    confidence: Confidence
+
+
+class ClusterReviewOutput(BaseModel):
+    """LLM refinement of embedding-based clusters (group naming and merging)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    clusters: list[ClusterReviewItem] = Field(max_length=200)

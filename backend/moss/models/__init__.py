@@ -143,6 +143,24 @@ class CollectionReview(Base):
     decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class ClusterGroup(Base):
+    """LLM-refined naming for embedding-based semantic clusters."""
+
+    __tablename__ = "cluster_groups"
+
+    cluster_id: Mapped[str] = mapped_column(String(512), primary_key=True)
+    workspace_id: Mapped[str] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    confidence: Mapped[str] = mapped_column(String(16), default="medium", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    @property
+    def signature(self) -> str:
+        return self.cluster_id
+
+
 class ActionItem(Base):
     __tablename__ = "action_items"
 
