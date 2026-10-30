@@ -24,10 +24,16 @@ from moss.ai.prompts.extract_actions import (
 )
 from moss.ai.prompts.extract_actions import SYSTEM_PROMPT as ACTIONS_SYSTEM_PROMPT
 from moss.ai.prompts.extract_actions import action_prompt
+from moss.ai.prompts.cluster import (
+    SIMPLIFIED_SYSTEM_PROMPT as SIMPLIFIED_CLUSTER_SYSTEM_PROMPT,
+)
+from moss.ai.prompts.cluster import SYSTEM_PROMPT as CLUSTER_SYSTEM_PROMPT
+from moss.ai.prompts.cluster import cluster_review_prompt
 from moss.config import Settings
 from moss.schemas.ai_outputs import (
     ActionsOutput,
     ClassificationOutput,
+    ClusterReviewOutput,
     FilenameSuggestion,
 )
 

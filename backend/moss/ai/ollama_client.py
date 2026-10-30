@@ -14,6 +14,19 @@ from moss.config import Settings
 LOGGER = logging.getLogger(__name__)
 
 
+def normalize_model_tag(tag: str) -> str:
+    """Normalize an Ollama model tag for comparison.
+
+    Ollama lowercases repository names when listing models (``Qwen3:4b`` is
+    reported as ``qwen3:4b``), so availability checks must compare tags in a
+    case-insensitive way while still honouring the ``latest`` tag shorthand.
+    """
+    normalized = tag.strip().lower()
+    if ":" not in normalized:
+        normalized += ":latest"
+    return normalized
+
+
 class OllamaError(RuntimeError):
     """Base error for failed local Ollama requests."""
 
@@ -122,9 +135,40 @@ class OllamaClient:
             if isinstance((name := model.get("name")), str)
         }
 
+    def _resolve_model_tag(self, requested_tag: str, available: set[str]) -> str | None:
+        """Match a configured tag against Ollama's inventory.
+
+        Ollama normalizes repository names to lowercase (``Qwen3:4b`` is
+        listed as ``qwen3:4b``), so comparisons are case-insensitive and
+        honour the ``latest`` tag shorthand (``qwen3`` matches ``qwen3:latest``).
+        """
+        normalized = normalize_model_tag(requested_tag)
+        if normalized in {normalize_model_tag(tag) for tag in available}:
+            return next(
+                tag
+                for tag in sorted(available)
+                if normalize_model_tag(tag) == normalized
+            )
+        return None
+
+    async def resolve_model_tag(self, requested_tag: str) -> str:
+        """Return the installed model name that matches the configured tag."""
+        available = await self.list_models()
+        resolved = self._resolve_model_tag(requested_tag, available)
+        if resolved is None:
+            raise OllamaModelUnavailableError(
+                f"Required Ollama model '{requested_tag}' is not installed. "
+                "Moss does not download models."
+            )
+        return resolved
+
     async def ensure_models_available(self, *required_tags: str) -> None:
         available = await self.list_models()
-        missing = [tag for tag in required_tags if tag not in available]
+        missing = [
+            tag
+            for tag in required_tags
+            if self._resolve_model_tag(tag, available) is None
+        ]
         if missing:
             raise OllamaModelUnavailableError(
                 "Required Ollama model tags are not installed: "
