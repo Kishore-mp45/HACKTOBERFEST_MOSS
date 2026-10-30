@@ -14,6 +14,9 @@ embedding_batch_size = 16
 similarity_threshold = 0.75
 duplicate_threshold = 0.92
 max_text_chars_for_llm = 12000
+# Extra local-LLM pass that names and merges embedding-based clusters.
+# Set to false to keep purely mathematical (embedding) grouping.
+enable_llm_clustering = true
 
 [server]
 host = "127.0.0.1"

@@ -113,3 +113,43 @@ def test_filename_suggestion_is_schema_validated() -> None:
     result = asyncio.run(service.suggest_filename("A project plan"))
 
     assert result.filename == "Project-Plan.txt"
+
+
+CLUSTER_REVIEW = {
+    "clusters": [
+        {"cluster_id": 0, "group_name": "Invoices", "merge_with": 1, "confidence": "high"},
+        {"cluster_id": 1, "group_name": "Billing docs", "merge_with": None, "confidence": "medium"},
+        {"cluster_id": 2, "group_name": "Meeting notes", "merge_with": None, "confidence": "low"},
+    ]
+}
+
+
+def test_review_clusters_sanitizes_hallucinated_ids() -> None:
+    payload = dict(CLUSTER_REVIEW)
+    # A fabricated id plus a self-merge and an unknown merge target must be dropped.
+    payload["clusters"].append(
+        {"cluster_id": 99, "group_name": "Ghost", "merge_with": 7, "confidence": "high"}
+    )
+    payload["clusters"][2]["merge_with"] = 2
+    client = FakeOllama([json.dumps(payload)])
+    service = LLMService(Settings(), client)
+
+    result = asyncio.run(service.review_clusters("[0] a\n[1] b\n[2] c", {0, 1, 2}))
+
+    ids = {item.cluster_id for item in result.clusters}
+    assert ids == {0, 1, 2}
+    by_id = {item.cluster_id: item for item in result.clusters}
+    assert by_id[0].merge_with == 1
+    assert by_id[2].merge_with is None
+    prompt = str(client.calls[0]["prompt"])
+    assert "untrusted data" in prompt
+
+
+def test_review_clusters_retries_invalid_schema_then_succeeds() -> None:
+    client = FakeOllama(['{"clusters":[{"cluster_id":-1}]}', json.dumps(CLUSTER_REVIEW)])
+    service = LLMService(Settings(), client)
+
+    result = asyncio.run(service.review_clusters("[0] a", {0, 1, 2}))
+
+    assert len(client.calls) == 2
+    assert {item.cluster_id for item in result.clusters} == {0, 1, 2}
