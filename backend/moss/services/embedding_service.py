@@ -180,31 +180,27 @@ class EmbeddingService:
         refined_labels = [remap.get(label, label) for label in raw_labels]
 
         names = {item.cluster_id: item for item in review.clusters}
-        existing_result = await session.execute(
-            select(ClusterGroup).where(ClusterGroup.workspace_id == workspace.id)
+        # Signatures are membership-based, so they change whenever the file set
+        # or the grouping changes. Wipe this workspace's stored names and rewrite
+        # them from the current refined pass; because every scan runs the LLM
+        # review (unless disabled), the dashboard always sees fresh names, and a
+        # disabled pass intentionally leaves no stale rows behind.
+        await session.execute(
+            delete(ClusterGroup).where(ClusterGroup.workspace_id == workspace.id)
         )
-        existing = {row.signature: row for row in existing_result.scalars()}
         for root, member_ids in merged_members.items():
-            signature = "|".join(sorted(member_ids))
-            group = existing.pop(signature, None)
             candidates = [names[label] for label in multi if find(label) == root]
             if not candidates:
                 continue
             best = max(candidates, key=lambda item: confidence_rank(item.confidence))
-            if group is None:
-                session.add(
-                    ClusterGroup(
-                        cluster_id=signature,
-                        workspace_id=workspace.id,
-                        name=best.group_name[:120],
-                        confidence=best.confidence,
-                    )
+            session.add(
+                ClusterGroup(
+                    cluster_id="|".join(sorted(member_ids)),
+                    workspace_id=workspace.id,
+                    name=best.group_name[:120],
+                    confidence=best.confidence,
                 )
-            else:
-                group.name = best.group_name[:120]
-                group.confidence = best.confidence
-        for stale in existing.values():
-            await session.delete(stale)
+            )
         await session.flush()
         return review, refined_labels
 
