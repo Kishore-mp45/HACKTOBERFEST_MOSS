@@ -17,11 +17,13 @@ from moss.ai.ollama_client import OllamaClient, OllamaError, OllamaRequestError
 from moss.config import Settings
 from moss.models import (
     Classification,
+    ClusterGroup,
     DocumentRelationship,
     Embedding,
     FileRecord,
     Workspace,
 )
+from moss.schemas.ai_outputs import ClusterReviewOutput
 
 LOGGER = logging.getLogger(__name__)
 MAX_COMPARISON_DOCUMENTS = 5000
@@ -98,6 +100,79 @@ class EmbeddingService:
     def __init__(self, settings: Settings, client: OllamaClient) -> None:
         self.settings = settings
         self.client = client
+
+    async def refine_clusters(
+        self,
+        session: AsyncSession,
+        workspace: Workspace,
+        classifications: list[tuple[Classification, FileRecord]],
+        clusters: dict[int, list[str]],
+        file_by_id: dict[str, FileRecord],
+    ) -> ClusterReviewOutput | None:
+        """Ask the local LLM to name and merge embedding-based clusters.
+
+        Returns ``None`` when refinement is disabled or fails; clustering then
+        falls back to the pure embedding result. Successful names are stored in
+        :class:`ClusterGroup` keyed by a deterministic cluster signature so
+        they survive between scans even though UUIDs are regenerated.
+        """
+        if not getattr(self.settings, "enable_llm_clustering", True):
+            return None
+        multi = {label: ids for label, ids in clusters.items() if len(ids) > 1}
+        if not multi:
+            return None
+        lines: list[str] = []
+        for label in sorted(multi):
+            members = multi[label]
+            snippets: list[str] = []
+            for file_id in members[:8]:
+                record = file_by_id.get(file_id)
+                topic = next(
+                    (
+                        f"{classification.topic} ({record.relative_path})"
+                        for classification, candidate in classifications
+                        if candidate.id == file_id and record is not None
+                    ),
+                    record.relative_path if record else "?",
+                )
+                snippets.append(topic)
+            lines.append(f"[{label}] " + "; ".join(snippets))
+        try:
+            from moss.ai.llm_service import LLMService
+
+            review = await LLMService(self.settings, self.client).review_clusters(
+                "\n".join(lines), set(multi)
+            )
+        except Exception:  # noqa: BLE001 - advisory pass must never fail a scan
+            LOGGER.warning("LLM cluster refinement failed; keeping raw clusters.")
+            return None
+        names = {item.cluster_id: item for item in review.clusters}
+        existing_result = await session.execute(
+            select(ClusterGroup).where(ClusterGroup.workspace_id == workspace.id)
+        )
+        existing = {row.signature: row for row in existing_result.scalars()}
+        for label, member_ids in multi.items():
+            signature = "|".join(sorted(member_ids))
+            item = names.get(label)
+            group = existing.pop(signature, None)
+            if item is None:
+                continue
+            if group is None:
+                session.add(
+                    ClusterGroup(
+                        cluster_id=signature,
+                        workspace_id=workspace.id,
+                        name=item.group_name[:120],
+                        confidence=item.confidence,
+                    )
+                )
+            else:
+                group.name = item.group_name[:120]
+                group.confidence = item.confidence
+        for stale in existing.values():
+            await session.delete(stale)
+        await session.flush()
+        return review
 
     async def process_workspace(
         self,
@@ -245,6 +320,7 @@ class EmbeddingService:
         files: list[FileRecord],
         stored_embeddings: dict[str, Embedding],
         file_by_id: dict[str, FileRecord],
+        cluster_refinement: ClusterReviewOutput | None = None,
     ) -> None:
         file_ids = list(file_by_id)
         if file_ids:
@@ -316,6 +392,35 @@ class EmbeddingService:
         cluster_sizes: dict[int, int] = defaultdict(int)
         for label in labels:
             cluster_sizes[label] += 1
+        if cluster_refinement is not None:
+            # Apply the LLM's merge suggestions (union-find over cluster labels).
+            parent = {label: label for label in cluster_sizes}
+
+            def find(label: int) -> int:
+                while parent[label] != label:
+                    parent[label] = parent[parent[label]]
+                    label = parent[label]
+                return label
+
+            for item in cluster_refinement.clusters:
+                target = item.merge_with
+                if (
+                    target is None
+                    or target not in parent
+                    or item.cluster_id not in parent
+                ):
+                    continue
+                left, right = find(item.cluster_id), find(target)
+                if left != right:
+                    parent[right] = left
+            merged_sizes: dict[int, int] = defaultdict(int)
+            remap: dict[int, int] = {}
+            for label in cluster_sizes:
+                root = find(label)
+                remap[label] = root
+                merged_sizes[root] += cluster_sizes[label]
+            cluster_sizes = merged_sizes
+            labels = [remap[label] for label in labels]
         for label, size in cluster_sizes.items():
             if size > 1:
                 cluster_ids[label] = str(uuid4())

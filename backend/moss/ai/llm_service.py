@@ -66,6 +66,39 @@ class LLMService:
             prompt_factory=action_prompt,
         )
 
+    async def review_clusters(
+        self,
+        clusters_payload: str,
+        valid_cluster_ids: set[int],
+    ) -> ClusterReviewOutput:
+        """Refine embedding-based clusters (naming and merging) with the local LLM.
+
+        The embedding clustering is the source of truth; the model output is a
+        advisory pass that is sanitized here so malformed or hallucinated
+        cluster ids can never corrupt the grouping.
+        """
+        output = await self._validated_call(
+            model=self.settings.llm_model,
+            document_text=clusters_payload,
+            output_model=ClusterReviewOutput,
+            primary_system=CLUSTER_SYSTEM_PROMPT,
+            simplified_system=SIMPLIFIED_CLUSTER_SYSTEM_PROMPT,
+            prompt_factory=cluster_review_prompt,
+        )
+        seen: set[int] = set()
+        sanitized = []
+        for item in output.clusters:
+            if item.cluster_id not in valid_cluster_ids or item.cluster_id in seen:
+                continue
+            seen.add(item.cluster_id)
+            if item.merge_with is not None and (
+                item.merge_with not in valid_cluster_ids
+                or item.merge_with == item.cluster_id
+            ):
+                item.merge_with = None
+            sanitized.append(item)
+        return ClusterReviewOutput(clusters=sanitized)
+
     async def suggest_filename(self, document_text: str) -> FilenameSuggestion:
         return await self._validated_call(
             model=self.settings.llm_model,
