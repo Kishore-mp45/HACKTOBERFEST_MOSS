@@ -13,6 +13,7 @@ from moss.models import (
     ActionItem,
     Approval,
     Classification,
+    ClusterGroup,
     CollectionReview,
     DocumentRelationship,
     ExecutionRecord,
@@ -196,6 +197,15 @@ async def list_collections(
                 (relationship.file_a_id, relationship.file_b_id)
             )
 
+    # LLM-refined names produced during the scan's cluster review pass.
+    group_result = await session.execute(
+        select(ClusterGroup).where(ClusterGroup.workspace_id == workspace.id)
+    )
+    llm_names: dict[str, str] = {}
+    for group in group_result.scalars():
+        for file_id in group.signature.split("|"):
+            llm_names.setdefault(file_id, group.name)
+
     collections: list[CollectionResponse] = []
     for cluster_id, file_ids in sorted(members.items()):
         valid_ids = sorted(file_id for file_id in file_ids if file_id in files)
@@ -212,6 +222,11 @@ async def list_collections(
             if files[file_id][1] is not None
         ]
         topic = classifications[0].topic if classifications else "Related documents"
+        # Prefer the LLM-refined cluster name when this scan produced one.
+        refined_name = next(
+            (llm_names[file_id] for file_id in valid_ids if file_id in llm_names),
+            None,
+        )
         keywords = sorted(
             {
                 keyword
@@ -222,8 +237,8 @@ async def list_collections(
         collections.append(
             CollectionResponse(
                 id=cluster_id,
-                name=topic,
-                description=f"Documents grouped around {topic}.",
+                name=refined_name or topic,
+                description=f"Documents grouped around {refined_name or topic}.",
                 keywords=keywords,
                 file_ids=valid_ids,
                 origin="confirmed" if review and review.status == "CONFIRMED" else "ai",

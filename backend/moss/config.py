@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     embedding_batch_size: int = Field(default=16, gt=0)
     similarity_threshold: float = Field(default=0.75, ge=0, le=1)
     duplicate_threshold: float = Field(default=0.92, ge=0, le=1)
+    enable_llm_clustering: bool = True
     max_text_chars_for_llm: int = Field(default=12000, gt=0)
     allow_remote_host: bool = False
     host: str = "127.0.0.1"
@@ -115,6 +116,9 @@ def _flatten_toml(data: dict[str, Any]) -> dict[str, Any]:
         ),
         "duplicate_threshold": data.get("analysis", {}).get(
             "duplicate_threshold", 0.92
+        ),
+        "enable_llm_clustering": data.get("analysis", {}).get(
+            "enable_llm_clustering", True
         ),
         "max_text_chars_for_llm": data.get("analysis", {}).get(
             "max_text_chars_for_llm", 12000

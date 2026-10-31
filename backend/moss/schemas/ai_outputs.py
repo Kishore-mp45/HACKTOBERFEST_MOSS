@@ -6,6 +6,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 Confidence = Literal["high", "medium", "low"]
 
+CONFIDENCE_RANK: dict[str, int] = {"high": 3, "medium": 2, "low": 1}
+
+
+def confidence_rank(value: str) -> int:
+    """Order confidence labels for comparisons (unknown values rank lowest)."""
+    return CONFIDENCE_RANK.get(value, 0)
+
 
 class ClassificationOutput(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
