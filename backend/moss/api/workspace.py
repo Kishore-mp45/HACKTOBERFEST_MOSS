@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from moss.ai.ollama_client import normalize_model_tag
 from moss.config import Settings
 from moss.database import session_dependency
 from moss.models import ExecutionRecord, FileRecord, ProposedOperation, Recommendation, Workspace
@@ -198,10 +199,11 @@ async def model_status(request: Request) -> ModelStatus:
             error="Ollama returned an unexpected model inventory response.",
         )
     available_tags = {model.get("name") for model in models}
+    normalized_tags = {normalize_model_tag(tag) for tag in available_tags if isinstance(tag, str)}
     return ModelStatus(
         ollama_available=True,
         llm_model=settings.llm_model,
-        llm_available=settings.llm_model in available_tags,
+        llm_available=normalize_model_tag(settings.llm_model) in normalized_tags,
         embedding_model=settings.embedding_model,
-        embedding_available=settings.embedding_model in available_tags,
+        embedding_available=normalize_model_tag(settings.embedding_model) in normalized_tags,
     )
