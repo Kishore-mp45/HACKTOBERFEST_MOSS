@@ -37,7 +37,12 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = Field(default=8765, ge=1, le=65535)
     log_level: str = "info"
+    log_json: bool = False
     database_path: str = ""
+    llm_max_concurrency: int = Field(default=1, ge=1, le=8)
+    ai_cache_enabled: bool = True
+    auto_scan_enabled: bool = False
+    auto_scan_interval_minutes: int = Field(default=60, ge=5, le=24 * 60)
 
     @field_validator("ollama_base_url")
     @classmethod
@@ -123,9 +128,16 @@ def _flatten_toml(data: dict[str, Any]) -> dict[str, Any]:
         "max_text_chars_for_llm": data.get("analysis", {}).get(
             "max_text_chars_for_llm", 12000
         ),
+        "llm_max_concurrency": data.get("model", {}).get("llm_max_concurrency", 1),
+        "ai_cache_enabled": data.get("model", {}).get("ai_cache_enabled", True),
+        "auto_scan_enabled": data.get("scanning", {}).get("auto_scan_enabled", False),
+        "auto_scan_interval_minutes": data.get("scanning", {}).get(
+            "auto_scan_interval_minutes", 60
+        ),
         "host": data.get("server", {}).get("host", "127.0.0.1"),
         "port": data.get("server", {}).get("port", 8765),
         "log_level": data.get("server", {}).get("log_level", "info"),
+        "log_json": data.get("server", {}).get("log_json", False),
         "database_path": data.get("database", {}).get("path", ""),
     }
 

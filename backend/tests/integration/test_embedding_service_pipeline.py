@@ -26,8 +26,11 @@ class MockEmbeddingClient:
     async def embed(self, *, model: str, inputs: list[str]) -> list[list[float]]:
         assert model == "nomic-embed-text:latest"
         self.calls += 1
+        # Near-identical vectors inside each group (cosine ~0.98) and related
+        # across groups (cosine ~0.76) so the pipeline emits both an
+        # EXACT_DUPLICATE pair (shared hash) and a RELATED cross-group pair.
         return [
-            [1.0, 0.0] if "alpha" in text else [0.8, 0.6]
+            [1.0, 0.0] if "alpha" in text else [0.7615, 0.6482]
             for text in inputs
         ]
 
@@ -195,8 +198,11 @@ def test_llm_cluster_refinement_merges_clusters_and_persists_names(
 
             async def embed(self, *, model: str, inputs: list[str]) -> list[list[float]]:
                 del model
+                # Orthogonal per-group vectors keep the two raw clusters apart
+                # (cross-group cosine = 0 < 0.75) so the LLM merge is what
+                # actually collapses them into a single group.
                 return [
-                    [1.0, 0.0] if "alpha" in text else [0.8, 0.6] for text in inputs
+                    [1.0, 0.0] if "alpha" in text else [0.0, 1.0] for text in inputs
                 ]
 
             async def chat(self, **kwargs) -> str:
@@ -205,7 +211,12 @@ def test_llm_cluster_refinement_merges_clusters_and_persists_names(
                 return json.dumps(
                     {
                         "clusters": [
-                            {"cluster_id": 0, "group_name": "Alpha papers", "confidence": "high"},
+                            {
+                                "cluster_id": 0,
+                                "group_name": "Alpha papers",
+                                "confidence": "high",
+                                "merge_with": 1,
+                            },
                             {"cluster_id": 1, "group_name": "Beta notes", "confidence": "medium"},
                         ]
                     }

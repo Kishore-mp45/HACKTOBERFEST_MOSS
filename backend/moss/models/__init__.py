@@ -243,6 +243,57 @@ class ExecutionRecord(Base):
     undone: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
+class SettingsRow(Base):
+    """User-editable runtime settings persisted as JSON key/value rows.
+
+    These override the static ``config.toml``/env defaults at request time
+    (e.g. clustering threshold, LLM concurrency, scheduled scans) so the
+    Settings UI can tune Moss without restarting the backend.
+    """
+
+    __tablename__ = "settings"
+
+    key: Mapped[str] = mapped_column(String(128), primary_key=True)
+    value: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class TrashedFile(Base):
+    """Files soft-deleted by archive recommendations (trash-based undo).
+
+    The file is moved into ``.moss/trash/<timestamp>/<name>`` inside the
+    workspace instead of being hard-deleted, and this row records enough
+    state to restore it later or purge it permanently.
+    """
+
+    __tablename__ = "trashed_files"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    workspace_id: Mapped[str] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    file_id: Mapped[str | None] = mapped_column(String(36))
+    original_path: Mapped[str] = mapped_column(Text, nullable=False)
+    trash_path: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str | None] = mapped_column(String(64))
+    trashed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    restored_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class SmartCollection(Base):
+    """Saved semantic queries that re-evaluate against the current scan."""
+
+    __tablename__ = "smart_collections"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    workspace_id: Mapped[str] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    query: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class Job(Base):
     __tablename__ = "jobs"
 
@@ -275,5 +326,8 @@ __all__ = [
     "Job",
     "ProposedOperation",
     "Recommendation",
+    "SettingsRow",
+    "SmartCollection",
+    "TrashedFile",
     "Workspace",
 ]

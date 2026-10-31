@@ -101,6 +101,15 @@ class EmbeddingService:
         self.settings = settings
         self.client = client
 
+    async def clear_cluster_groups(
+        self, session: AsyncSession, workspace: Workspace
+    ) -> None:
+        """Remove every stored LLM cluster name for a workspace."""
+        await session.execute(
+            delete(ClusterGroup).where(ClusterGroup.workspace_id == workspace.id)
+        )
+        await session.flush()
+
     async def refine_clusters(
         self,
         session: AsyncSession,
@@ -115,10 +124,13 @@ class EmbeddingService:
         The embedding clustering (``ids``/``labels`` from
         :func:`compute_pairwise_similarity`) stays the source of truth; this is
         an advisory pass that returns remapped labels plus the sanitized review.
-        When refinement is disabled or fails, the raw labels are returned
-        unchanged with ``None`` so scanning degrades gracefully. Names are
-        stored in :class:`ClusterGroup` keyed by a deterministic cluster
-        signature so they survive between scans even though UUIDs change.
+        When refinement fails, the raw labels are returned unchanged with
+        ``None`` so scanning degrades gracefully. Names are stored in
+        :class:`ClusterGroup` keyed by a deterministic cluster signature so
+        they survive between scans even though relationship UUIDs change. A
+        scan with refinement *disabled* clears the stored names entirely (see
+        :meth:`process_workspace`) so stale LLM labels never leak into the
+        dashboard.
         """
         raw_labels = [int(label) for label in labels]
         if not getattr(self.settings, "enable_llm_clustering", True):
@@ -128,6 +140,8 @@ class EmbeddingService:
             grouped[label].append(file_id)
         multi = {label: members for label, members in grouped.items() if len(members) > 1}
         if not multi:
+            # Nothing worth naming this pass; drop any previously stored rows.
+            await self.clear_cluster_groups(session, workspace)
             return None, raw_labels
         classified_by_file = {
             record.id: classification for classification, record in classifications
@@ -319,6 +333,10 @@ class EmbeddingService:
             file_by_id,
             classified=classified,
         )
+        if not getattr(self.settings, "enable_llm_clustering", True):
+            # Deterministic grouping only: never keep stale LLM names from a
+            # previous refinement-enabled scan.
+            await self.clear_cluster_groups(session, workspace)
         report["embedded_files"] = embedded_count
         relationships_result = await session.execute(
             select(DocumentRelationship).where(
