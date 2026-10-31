@@ -37,7 +37,10 @@ _CONFIDENCE_WEIGHT = {"high": 1.0, "medium": 0.7, "low": 0.4}
 
 
 def is_generic_filename(filename: str) -> bool:
-    return _GENERIC_FILENAME.fullmatch(Path(filename).stem.strip()) is not None
+    # relative_path may use either separator; pathlib only splits on the
+    # native one, so strip both explicitly before checking the stem.
+    name = filename.replace("\\", "/").rsplit("/", 1)[-1]
+    return _GENERIC_FILENAME.fullmatch(Path(name).stem.strip()) is not None
 
 
 def recommendation_rank(

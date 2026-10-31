@@ -273,7 +273,9 @@ def test_llm_cluster_refinement_merges_clusters_and_persists_names(
                 assert len(groups) == 1
                 assert groups[0].name == "Alpha papers"
                 assert groups[0].confidence == "high"
-                assert "|".join(sorted(record.id for record in records[:3])) == (
+                # The merged cluster signature covers every member of both
+                # embedding clusters, not just the first one.
+                assert "|".join(sorted(record.id for record in records)) == (
                     groups[0].signature
                 )
 
@@ -293,6 +295,10 @@ def test_llm_cluster_refinement_merges_clusters_and_persists_names(
                 }
                 assert len(cluster_ids) == 2
                 assert disabled_client.chat_calls == 0
+                # With refinement disabled no ClusterGroup rows are produced or
+                # kept: the LLM naming pass is purely additive.
+                groups = list((await session.execute(select(ClusterGroup))).scalars())
+                assert groups == []
                 return {"ok": True}
         finally:
             await engine.dispose()
