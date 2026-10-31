@@ -1,0 +1,25 @@
+[workspace]
+root_path = ""
+max_file_size_mb = 50
+
+[model]
+ollama_base_url = "http://localhost:11434"
+# These tags must already exist in local Ollama. Moss never pulls models.
+llm_model = "Qwen3:4b"
+embedding_model = "nomic-embed-text:latest"
+llm_timeout_seconds = 120
+embedding_batch_size = 16
+
+[analysis]
+similarity_threshold = 0.75
+duplicate_threshold = 0.92
+max_text_chars_for_llm = 12000
+
+[server]
+host = "127.0.0.1"
+port = 8765
+log_level = "info"
+
+[database]
+# Empty uses the OS application data directory.
+path = ""

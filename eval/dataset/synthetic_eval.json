@@ -1,0 +1,90 @@
+{
+  "kind": "synthetic_mock",
+  "description": "Twelve fabricated notes with manually assigned topic clusters, fixed mock vectors, and binary action-item labels. Intended to validate the evaluation pipeline, not measure a language or embedding model.",
+  "documents": [
+    {
+      "id": "cedar-01",
+      "cluster": "cedar-project",
+      "mock_vector": [1.0, 0.04, 0.02],
+      "text": "Cedar planning notes.\nTODO: Send the draft to the design team.",
+      "has_action": true
+    },
+    {
+      "id": "cedar-02",
+      "cluster": "cedar-project",
+      "mock_vector": [0.98, 0.12, 0.03],
+      "text": "Cedar project follow-up.\nTODO: Review the launch checklist.",
+      "has_action": true
+    },
+    {
+      "id": "cedar-03",
+      "cluster": "cedar-project",
+      "mock_vector": [0.95, 0.16, 0.05],
+      "text": "The Cedar team agreed to send the draft next week.",
+      "has_action": true
+    },
+    {
+      "id": "cedar-04",
+      "cluster": "cedar-project",
+      "mock_vector": [0.97, 0.02, 0.11],
+      "text": "Cedar project background and meeting context.",
+      "has_action": false
+    },
+    {
+      "id": "harbor-01",
+      "cluster": "harbor-renovation",
+      "mock_vector": [0.03, 1.0, 0.04],
+      "text": "Harbor renovation update.\nDeadline: Confirm the contractor by Friday.",
+      "has_action": true
+    },
+    {
+      "id": "harbor-02",
+      "cluster": "harbor-renovation",
+      "mock_vector": [0.08, 0.97, 0.12],
+      "text": "Harbor work plan.\nTODO: Order replacement fixtures.",
+      "has_action": true
+    },
+    {
+      "id": "harbor-03",
+      "cluster": "harbor-renovation",
+      "mock_vector": [0.12, 0.95, 0.04],
+      "text": "Notes about materials used in the Harbor renovation.",
+      "has_action": false
+    },
+    {
+      "id": "harbor-04",
+      "cluster": "harbor-renovation",
+      "mock_vector": [0.02, 0.91, 0.2],
+      "text": "TODO: (quoted example only, not a real task).",
+      "has_action": false
+    },
+    {
+      "id": "orchard-01",
+      "cluster": "orchard-finance",
+      "mock_vector": [0.03, 0.05, 1.0],
+      "text": "Orchard finance notes.\nDeadline: Reconcile the July invoices.",
+      "has_action": true
+    },
+    {
+      "id": "orchard-02",
+      "cluster": "orchard-finance",
+      "mock_vector": [0.11, 0.03, 0.97],
+      "text": "Orchard expense summary and quarterly totals.",
+      "has_action": false
+    },
+    {
+      "id": "orchard-03",
+      "cluster": "orchard-finance",
+      "mock_vector": [0.04, 0.14, 0.95],
+      "text": "Notes on Orchard budget forecasts.",
+      "has_action": false
+    },
+    {
+      "id": "orchard-04",
+      "cluster": "orchard-finance",
+      "mock_vector": [0.15, 0.08, 0.94],
+      "text": "Orchard finance meeting record.",
+      "has_action": false
+    }
+  ]
+}

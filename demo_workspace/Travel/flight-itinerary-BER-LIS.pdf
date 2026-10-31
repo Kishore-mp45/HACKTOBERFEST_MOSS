@@ -1,0 +1,73 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 1
+/Kids [ 4 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 380
+>>
+stream
+BT
+/F1 11 Tf
+15 TL
+54 720 Td
+(Flight Booking Confirmation: Berlin \(BER\) - Lisbon \(LIS\)) Tj
+T*
+T*
+(Airline: European Air Mobility) '
+(Booking Reference: LH-88392) '
+(Passenger: Resident Traveler) '
+() '
+(Outbound Flight: BER -> LIS, 2 November 2026) '
+(Return: LIS -> BER, 9 November.) '
+() '
+(Status: Confirmed. Seat selection and online check-in window opens 24h prior.) '
+ET
+endstream
+>>
+endobj
+xref
+0 5
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000113 00000 n 
+0000000162 00000 n 
+trailer
+<<
+/Size 5
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+753
+%%EOF

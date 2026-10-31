@@ -1,0 +1,114 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 2
+/Kids [ 4 0 R 5 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 740
+>>
+stream
+BT
+/F1 11 Tf
+15 TL
+54 720 Td
+(Urban Heat Island Dynamics Across 14 European Metropolitan Areas) Tj
+T*
+T*
+(Authors: Dr. Elena Vance, Dr. Julian Meier, Institute for Urban Climatology) '
+(Preprint v3 - Published: October 2026) '
+() '
+(Abstract: This empirical study investigates the thermal gradient of urban heat islands) '
+(across 14 major European cities. Using satellite radiometric sensing and ground sensors,) '
+(we analyze heat-island effects across 14 European cities, with an open dataset and mitigation scenarios.) '
+() '
+(1. Introduction) '
+(Metropolitan centers experience microclimate shifts characterized by nighttime heat retention.) '
+(Surface permeability and canopy coverage represent the strongest mitigation factors.) '
+ET
+endstream
+>>
+endobj
+5 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 655
+>>
+stream
+BT
+/F1 11 Tf
+15 TL
+54 720 Td
+(Urban Heat Island Dynamics Across 14 European Metropolitan Areas) Tj
+T*
+T*
+(3. Methodology & Normalisation) '
+(3.2 Methodology: adapted from the open EU dataset \(see climate-paper-v3\).) '
+(Data collection protocols were harmonized across all 14 sensor grids.) '
+(Temperature deltas were normalized relative to rural reference baselines.) '
+() '
+(4. Key Findings) '
+(The findings confirm high diurnal variance in dense commercial cores.) '
+(Urban green corridors reduce localized air temperature by up to 2.4 degrees Celsius.) '
+(The accompanying dataset is released under Open Data Commons license for academic reuse.) '
+ET
+endstream
+>>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000119 00000 n 
+0000000168 00000 n 
+0000001119 00000 n 
+trailer
+<<
+/Size 6
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+1985
+%%EOF

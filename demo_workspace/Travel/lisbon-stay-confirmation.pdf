@@ -1,0 +1,74 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 1
+/Kids [ 4 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+/MediaBox [ 0.0 0.0 612 792 ]
+/Parent 2 0 R
+/Contents <<
+/Length 431
+>>
+stream
+BT
+/F1 11 Tf
+15 TL
+54 720 Td
+(Lisbon Accommodation Confirmation) Tj
+T*
+T*
+(Reservation ID: LIS-HOST-4491) '
+(Property: Santa Catarina Rooftop Suite, Lisbon) '
+(Stay: 2-9 November, host contact inside.) '
+() '
+(Check-in Window: 15:00 - 20:00 on 2 November) '
+(Host Contact: Miguel Santos \(+351 912 345 678\)) '
+(Address: Rua de Santa Catarina 45, 1200 Lisbon) '
+() '
+(Wi-Fi and access code provided upon arrival verification.) '
+ET
+endstream
+>>
+endobj
+xref
+0 5
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000113 00000 n 
+0000000162 00000 n 
+trailer
+<<
+/Size 5
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+804
+%%EOF

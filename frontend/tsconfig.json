@@ -1,0 +1,64 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "playwright.config.ts",
+    "e2e/**/*.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "next.config.ts",
+    "tailwind.config.ts",
+    "src/app/**/*.ts",
+    "src/app/**/*.tsx",
+    "src/components/moss/**/*.ts",
+    "src/components/moss/**/*.tsx",
+    "src/components/ui/**/*.ts",
+    "src/components/ui/**/*.tsx",
+    "src/config/**/*.ts",
+    "src/features/**/*.ts",
+    "src/features/**/*.tsx",
+    "src/hooks/**/*.ts",
+    "src/hooks/**/*.tsx",
+    "src/lib/api/**/*.ts",
+    "src/lib/format.ts",
+    "src/lib/router.tsx",
+    "src/lib/utils.ts",
+    "src/mocks/**/*.ts",
+    "src/store/**/*.ts",
+    "src/store/**/*.tsx",
+    "src/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "vite.config.ts"
+  ]
+}
